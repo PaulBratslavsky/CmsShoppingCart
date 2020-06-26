@@ -43,6 +43,33 @@ namespace CmsShoppingCart.Areas.Admin.Controllers
             return View(page);
         }
 
+        // GET /admin/pages/create
+        public IActionResult Create() => View();
+
+        // POST /admin/create/deatails/5
+        [HttpPost]
+        public async Task<IActionResult> Create(Page page)
+        {
+            if (ModelState.IsValid)
+            {
+                page.Slug = page.Title.ToLower().Replace(" ", "-");
+                page.Sorting = 100;
+
+                var slug = await context.Pages.FirstOrDefaultAsync(x => x.Slug == page.Slug);
+                if (slug != null)
+                {
+                    ModelState.AddModelError("", "The title already exists.");
+                    return View(page);
+                }
+
+                context.Add(page);
+                await context.SaveChangesAsync();
+
+                return RedirectToAction("Index");
+            }
+
+            return View(page);
+        }
 
     }
 }   
